@@ -1,3 +1,27 @@
+// sin2.s
+// Approximate Sin(x) by Chebyshev approximation
+
+.global         _sin_2
+.p2align        2			// Make sure everything is aligned properly
+
+        .macro  LOADVAL reg, name
+        adrp    x0, \name@GOTPAGE
+        ldr     x0, [x0, \name@GOTPAGEOFF]
+        ldr     \reg, [x0]
+        .endm
+
+.text
+
+_sin_2:
+        adrp    x0, a3@GOTPAGE
+        ldr     x0, [x0, a3@GOTPAGEOFF]
+        ldr     d1, [x0]
+        LOADVAL d2, a3
+        fmov    d0, d1
+        ret
+
+.p2align        2
+.data
 a0:	.double	+3.15159609307366933583264e-17
 a1:	.double	+9.99999999999992137463981e-1
 a2:	.double	+3.24848403977218879514298e-13

@@ -1,6 +1,12 @@
 libsin1.dylib: sin1.o
 	ld -o libsin1.dylib sin1.o -dylib -lSystem -syslibroot `xcrun -sdk macosx --show-sdk-path`
 
+sin2.o: sin2.s
+	as -arch arm64 -o sin2.o sin2.s
+
+libsin2.dylib: sin2.o
+	ld -o libsin2.dylib sin2.o -dylib -lSystem -syslibroot `xcrun -sdk macosx --show-sdk-path`
+
 sin1.o: sin1.s
 	as -arch arm64 -o sin1.o sin1.s
 

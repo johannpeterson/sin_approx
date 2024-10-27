@@ -1,2 +1,4 @@
 .DS_Store
 gsl-2.8/
+*.o
+*.dylib
