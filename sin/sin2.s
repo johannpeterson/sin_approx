@@ -13,10 +13,35 @@
 .text
 
 _sin_2:
-        adrp    x0, a3@GOTPAGE
-        ldr     x0, [x0, a3@GOTPAGEOFF]
-        ldr     d1, [x0]
-        LOADVAL d2, a3
+        LOADVAL d1, a0
+        LOADVAL d2, a1
+        LOADVAL d3, a2
+        LOADVAL d4, a3
+        LOADVAL d5, a4
+        LOADVAL d6, a5
+        LOADVAL d7, a6
+        LOADVAL d8, a7
+        LOADVAL d9, a8
+        LOADVAL d10, a9
+        LOADVAL d11, a10
+        LOADVAL d12, a11
+        LOADVAL d13, a12
+        LOADVAL d14, a13
+
+        fmadd   d13, d14, d0, d13
+        fmadd   d12, d13, d0, d12
+        fmadd   d11, d12, d0, d11
+        fmadd   d10, d11, d0, d10
+        fmadd   d9, d10, d0, d9
+        fmadd   d8, d9, d0, d8
+        fmadd   d7, d8, d0, d7
+        fmadd   d6, d7, d0, d6
+        fmadd   d5, d6, d0, d5
+        fmadd   d4, d5, d0, d4
+        fmadd   d3, d4, d0, d3
+        fmadd   d2, d3, d0, d2
+        fmadd   d1, d2, d0, d1
+
         fmov    d0, d1
         ret
 

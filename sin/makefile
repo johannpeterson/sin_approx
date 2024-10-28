@@ -11,7 +11,7 @@ sin1.o: sin1.s
 	as -arch arm64 -o sin1.o sin1.s
 
 test: test.o libsin1.dylib
-	clang -o test test.o -L. -lsin1
+	clang -o test test.o -L. -lsin1 -lsin2 -L/usr/local/lib -lgsl
 
 test.o: test.c
-	gcc -c test.c -o test.o
+	gcc -c test.c -o test.o -I/usr/local/include
