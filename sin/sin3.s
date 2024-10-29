@@ -14,7 +14,7 @@
 
 _sin_3:
         mov     w1, wzr         // we're going to use w1 to keep some flags
-        fmov    d4, #2          // we're going to divide by 2 later
+        fmov    d4, #2          // we're going to mulitply & divide by 2 later
 
         fcmp    d0, #0.0
         bge     pos             // x < 0, return -Sin(-x)
@@ -27,9 +27,7 @@ pos:
         ble     inrange
         fdiv    d3, d0, d1      // d0 > 2*Pi
         frintz  d3, d3          // floor
-        fcvtms  x2, d3          // convert to integer ("floor")
-        fmov    d2, x2
-        fmsub   d0, d0, d1, d2
+        fmsub   d0, d3, d1, d0
 
 inrange:                        // d0 < 2*Pi
         fdiv    d1, d1, d4      // d1 = Pi
@@ -105,3 +103,9 @@ a13:	.double	+1.12392760716968552199773e-10
 c2Pi:   .double +6.28318530717958647692529
 cPi:    .double +3.14159265358979323846264
 cPiD2:  .double +1.57079632679489661923132
+
+        /*
+Questions:
+        Is there a simpler way to multiply & divide FP registers by 2?
+        Simple way to keep a flag and negate a FP value conditional on the flag?
+        */

@@ -13,6 +13,11 @@ libsin3.dylib: sin3.o
 sin3.o: sin3.s
 	as -arch arm64 -o sin3.o sin3.s
 
+libreduce.dylib: reduce.o
+	ld -o libreduce.dylib reduce.o -dylib -lSystem -syslibroot `xcrun -sdk macosx --show-sdk-path`
+reduce.o: reduce.s
+	as -arch arm64 -o reduce.o reduce.s
+
 test: test.o libsin1.dylib
 	clang -o test test.o -L. -lsin1 -lsin2 -lsin3 -L/usr/local/lib -lgsl
 
