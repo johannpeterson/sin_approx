@@ -13,23 +13,38 @@
 .text
 
 _sin_3:
-        fcmp    d0, #0.0
-        bge     pos             // x < 0
-        // keep sign bit someplace
-        // return -Sin(-x)
-        fneg    d0
-pos:
-        LOADVAL d1, cPiD2
-        fcmp    d0, d1          // 0 <= x <= Pi/2
-        ble     approx
-        fmul    d1, d1, #2
-        fcmp    d0, d1          // Pi/2 < x <= Pi
-        // return Sin(Pi-x)
-        fmul    d1, d1, #2
-        fcmp    d0, d1          // Pi < x <= 2Pi
+        mov     w1, wzr         // we're going to use w1 to keep some flags
+        fmov    d4, #2          // we're going to divide by 2 later
 
-        // else 2Pi < x
-        // angle reduction here
+        fcmp    d0, #0.0
+        bge     pos             // x < 0, return -Sin(-x)
+        mov     w1, 0x0001      // 1 in w1 bit 1 will mean negate the result at the end
+        fneg    d0, d0
+
+pos:
+        LOADVAL d1, c2Pi        // d1 = 2*Pi
+        fcmp    d0, d1
+        ble     inrange
+        fdiv    d3, d0, d1      // d0 > 2*Pi
+        frintz  d3, d3          // floor
+        fcvtms  x2, d3          // convert to integer ("floor")
+        fmov    d2, x2
+        fmsub   d0, d0, d1, d2
+
+inrange:                        // d0 < 2*Pi
+        fdiv    d1, d1, d4      // d1 = Pi
+        fcmp    d0, d1
+        ble     first_half      // 0 <= x <= Pi
+        fsub    d0, d0, d1      // d0 = d0 - Pi
+        eor     w1, w1, 0x0001  // toggle 1st bit of w1, to negate the final answer
+
+first_half:
+        fdiv    d1, d1, d4      // d1 = Pi/2
+        fcmp    d0, d1
+        ble     approx          // 0 <= d0 <= Pi/2 - calculate the approximation
+        // Pi/2 < d0 <= Pi - return Sin(Pi-x)
+        fmul    d1, d1, d4      // d1 = Pi
+        fsub    d0, d1, d0      // d0 = Pi - d0
 
 approx:
         LOADVAL d1, a0
@@ -62,6 +77,9 @@ approx:
         fmadd   d1, d2, d0, d1
 
         fmov    d0, d1
+        and     w1, w1, 0x0001
+        // csneg
+        // negate d0 if w1 has bit 1 set
         ret
 
 .p2align        2
