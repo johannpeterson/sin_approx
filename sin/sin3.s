@@ -2,7 +2,7 @@
 // Approximate Sin(x) by Chebyshev approximation
 
 .global         _sin_3
-.p2align        2			// Make sure everything is aligned properly
+.p2align        2		// Make sure everything is aligned properly
 
         .macro  LOADVAL reg, name
         adrp    x0, \name@GOTPAGE
@@ -78,8 +78,11 @@ approx:
 
         fmov    d0, d1
         and     w1, w1, 0x0001
-        // csneg
-        // negate d0 if w1 has bit 1 set
+        cmp     w1, #0
+        beq     end
+        fneg    d0, d0
+
+end:
         ret
 
 .p2align        2
