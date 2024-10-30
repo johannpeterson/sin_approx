@@ -18,8 +18,12 @@ libreduce.dylib: reduce.o
 reduce.o: reduce.s
 	as -arch arm64 -o reduce.o reduce.s
 
-test: test.o libsin1.dylib
+test: test.o libsin1.dylib libsin2.dylib libsin3.dylib
 	clang -o test test.o -L. -lsin1 -lsin2 -lsin3 -L/usr/local/lib -lgsl
-
 test.o: test.c
 	gcc -c test.c -o test.o -I/usr/local/include
+
+benchmark: benchmark.o libsin3.dylib
+	clang -o benchmark benchmark.o -L. -lsin3 -L/usr/local/lib -lgsl
+test.o: benchmark.c
+	gcc -c benchmark.c -o benchmark.o -I/usr/local/include
