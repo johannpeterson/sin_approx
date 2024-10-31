@@ -23,12 +23,39 @@ char* help_string =
 
 gsl_rng *r; /* global random number generator */
 
+struct benchCycle {
+  long          points;
+  double        minx;
+  double        maxx;
+  double        mean_err;
+  double        min_err;
+  double        max_err;
+  double        ops_per_sec_A;
+  double        ops_per_sec_B;
+};
+
+void print_stats(struct benchCycle *stats, int cycles) {
+  printf("cycle\tN points\tmin x\tmax x\tmean(err)\tmin(err)\tmax(err)\top/sec A\top/sec B\n");
+  for (int c = 0; c < cycles; c++) {
+    printf("%d\t%ld\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n",
+           c,
+           stats[c].points,
+           stats[c].minx,
+           stats[c].maxx,
+           stats[c].mean_err,
+           stats[c].min_err,
+           stats[c].max_err,
+           stats[c].ops_per_sec_A,
+           stats[c].ops_per_sec_B);
+  }
+}
+
 int main(int argc, char **argv) {
   int c;
   int points = 10000;
   int cycles = 3;
-  double min = -M_PI;
-  double max = M_PI;
+  double min_x = -M_PI;
+  double max_x = M_PI;
   while ((c = getopt(argc, argv, "c:p:m:M:h")) != -1) {
     switch (c) {
     case 'p':
@@ -38,10 +65,10 @@ int main(int argc, char **argv) {
       cycles = atoi(optarg);
       break;
     case 'm':
-      min = atof(optarg);
+      min_x = atof(optarg);
       break;
     case 'M':
-      max = atof(optarg);
+      max_x = atof(optarg);
       break;
     case 'h':
       printf("%s\n", help_string);
@@ -64,7 +91,8 @@ int main(int argc, char **argv) {
   double *y1 = malloc(points * sizeof(double));
   double *y2 = malloc(points * sizeof(double));
   double *err = malloc(points * sizeof(double));
-  if (x == 0 || y1 == 0 || y2 == 0 || err == 0) {
+  struct benchCycle *cycle_log = malloc(cycles * sizeof(struct benchCycle));
+  if (x == NULL || y1 == NULL || y2 == NULL || err == NULL || cycle_log == NULL) {
     printf("Unable to allocate memory.");
     exit(1);
   }
@@ -80,12 +108,14 @@ int main(int argc, char **argv) {
 
   clock_t begin, end;
   double time_spent;
+  double min, max;
 
-  for (int c = 1; c <= cycles; c++) {
-    printf("cycle: %i\n", c);
+  for (int c = 0; c < cycles; c++) {
     for (int i = 0; i < points; i++) {
-      x[i] = gsl_ran_flat(r, 10e9 - M_PI, 10e9 + M_PI);
+      x[i] = gsl_ran_flat(r, min_x, max_x);
     }
+    cycle_log[c].points = points;
+    gsl_stats_minmax(&(cycle_log[c].minx), &(cycle_log[c].maxx), x, 1, points);
 
     // timing
     begin = clock();
@@ -94,7 +124,7 @@ int main(int argc, char **argv) {
     }
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("time for gsl_sf_sin: %f\n", time_spent);
+    cycle_log[c].ops_per_sec_A = points / time_spent;
 
     begin = clock();
     for (int i = 0; i < points; i++) {
@@ -102,16 +132,16 @@ int main(int argc, char **argv) {
     }
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("time for sin_3: %f\n", time_spent);
+    cycle_log[c].ops_per_sec_B = points / time_spent;
 
     for (int i = 0; i < points; i++) {
-      err[i] = y1[i] - y2[i];
+      err[i] = fabs(y1[i] - y2[i]);
     }
-    double min, max;
-    printf("mean(err) = %e\n", gsl_stats_mean(err, 1, points));
-    gsl_stats_minmax(&min, &max, err, 1, points);
-    printf("range(err) = %e - %e\n", min, max);
+    cycle_log[c].mean_err = gsl_stats_mean(err, 1, points);
+    gsl_stats_minmax(&cycle_log[c].min_err, &cycle_log[c].max_err, err, 1, points);
   }
+
+  print_stats(cycle_log, cycles);
 
   // clean up
   gsl_rng_free(r);
