@@ -13,13 +13,14 @@
 
 char* help_string =
   "benchmark - Timing program for sin functions.\n"
-  "usage: benchmark [-p npoints] [-c ncycles] [-m min -M max]\n\n"
+  "usage: benchmark [h] [-p npoints] [-c ncycles] [-m min -M max]\n\n"
   "    -p npoints          The number of x values to use for each cycle of testing\n"
   "                        Default 10000\n"
   "    -c ncycles          The number of test cycles to perform.\n"
   "                        Default 3\n"
   "    -m min -M max       Specify a range from which to draw x values for testing Sin(x).\n"
-  "                        Defaults min=-Pi max=Pi\n";
+  "                        Defaults min=-Pi max=Pi\n"
+  "    -h                  Display this help.\n";
 
 gsl_rng *r; /* global random number generator */
 
@@ -35,9 +36,9 @@ struct benchCycle {
 };
 
 void print_stats(struct benchCycle *stats, int cycles) {
-  printf("cycle\tN points\tmin x\tmax x\tmean(err)\tmin(err)\tmax(err)\top/sec A\top/sec B\n");
+  printf("cycle\t    N points\t       min x\t       max x\t    mean(err)\t    min(err)\t    max(err)\t    op/sec A\t    op/sec B\n");
   for (int c = 0; c < cycles; c++) {
-    printf("%d\t%ld\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n",
+    printf("%5d\t%12ld\t%12e\t%12e\t%12e\t%12e\t%12e\t%12e\t%12e\n",
            c,
            stats[c].points,
            stats[c].minx,
