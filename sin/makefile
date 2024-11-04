@@ -28,7 +28,7 @@ libangle_reduction.dylib: angle_reduction.o
 angle_reduction.o: angle_reduction.c
 	gcc -c -o angle_reduction.o angle_reduction.c
 
-libmysin.dylib: sin1.o sin2.o sin3.o reduce.o
+libmysin.dylib: sin1.o sin2.o sin3.o reduce.o angle_reduction.o
 	ld -o libmysin.dylib sin1.o sin2.o sin3.o reduce.o angle_reduction.o \
 	-dylib -lSystem -syslibroot  `xcrun -sdk macosx --show-sdk-path`
 

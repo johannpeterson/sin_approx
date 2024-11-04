@@ -22,7 +22,8 @@ char* help_string =
   "    -m min -M max       Specify a range from which to draw x values for testing Sin(x).\n"
   "                        Defaults min=-Pi max=Pi\n"
   "    -A fname\n"
-  "    -B fname            Choose functions to test by name."
+  "    -B fname            Choose functions to test by name.\n"
+  "    -L                  List available functions.\n"
   "    -h                  Display this help.\n";
 
 typedef double (*f_ptr)(double);
@@ -38,7 +39,7 @@ struct function_item function_lookup[] = {
   {"sin3",      &sin_3},
   {"gslsin",    &gsl_sf_sin},
   {"reduce",    &reduce},
-  //{"gslReduce", &gslReduce},
+  {"gslReduce", &gslReduce},
   {"",          NULL}
 };
 
@@ -52,6 +53,13 @@ struct benchCycle {
   double        ops_per_sec_A;
   double        ops_per_sec_B;
 };
+
+void list_functions() {
+  printf("Available function options:\n");
+  for(int i = 0; function_lookup[i].f_ptr != NULL; i++) {
+    printf("\t%s\n", function_lookup[i].f_name);
+  }
+}
 
 f_ptr get_function(const char *f_name) {
   f_ptr f = NULL;
@@ -111,7 +119,7 @@ int main(int argc, char **argv) {
     "gslsin", NULL};
 
   int c;
-  while ((c = getopt(argc, argv, "c:p:m:M:hA:B:")) != -1) {
+  while ((c = getopt(argc, argv, "c:p:m:M:hA:B:L")) != -1) {
     switch (c) {
     case 'p':
       points = atoi(optarg);
@@ -134,6 +142,9 @@ int main(int argc, char **argv) {
     case 'B':
       fB.f_name = optarg;
       break;
+    case 'L':
+      list_functions();
+      exit(0);
     }
   }
 
