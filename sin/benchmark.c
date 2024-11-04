@@ -55,9 +55,9 @@ struct benchCycle {
 };
 
 void list_functions() {
-  printf("Available function options:\n");
+  fprintf(stderr, "Available function options:\n");
   for(int i = 0; function_lookup[i].f_ptr != NULL; i++) {
-    printf("\t%s\n", function_lookup[i].f_name);
+    fprintf(stderr, "\t%s\n", function_lookup[i].f_name);
   }
 }
 
@@ -111,6 +111,8 @@ gsl_rng *r; /* global random number generator */
 int main(int argc, char **argv) {
   int points = 10000;
   int cycles = 3;
+  double x_point;
+  int single_point = 0;
   double min_x = -M_PI;
   double max_x = M_PI;
   struct function_item fA = {
@@ -119,7 +121,7 @@ int main(int argc, char **argv) {
     "gslsin", NULL};
 
   int c;
-  while ((c = getopt(argc, argv, "c:p:m:M:hA:B:L")) != -1) {
+  while ((c = getopt(argc, argv, "c:p:m:M:hA:B:Lx:")) != -1) {
     switch (c) {
     case 'p':
       points = atoi(optarg);
@@ -134,7 +136,7 @@ int main(int argc, char **argv) {
       max_x = atof(optarg);
       break;
     case 'h':
-      printf("%s\n", help_string);
+      fprintf(stderr, "%s\n", help_string);
       exit(0);
     case 'A':
       fA.f_name = optarg;
@@ -145,31 +147,44 @@ int main(int argc, char **argv) {
     case 'L':
       list_functions();
       exit(0);
+    case 'x':
+      x_point = atof(optarg);
+      single_point = 1;
+      break;
     }
   }
 
   // check parameters
   if (points < 1) {
-    printf("Please specify a positive number of test points per cycle.");
+    fprintf(stderr, "Please specify a positive number of test points per cycle.");
     exit(1);
   }
   if (cycles < 1) {
-    printf("Please specify a positive number of test cycles.");
+    fprintf(stderr, "Please specify a positive number of test cycles.");
     exit(1);
   }
   fA.f_ptr = get_function(fA.f_name);
   fB.f_ptr = get_function(fB.f_name);
   if (fA.f_ptr == NULL) {
-    printf("Unable to find function: %s\n", fA.f_name);
+    fprintf(stderr, "Unable to find function: %s\n", fA.f_name);
     exit(1);
   } else {
-    printf("function A = %s\n", fA.f_name);
+    fprintf(stderr, "function A = %s\n", fA.f_name);
   }
   if (fB.f_ptr == NULL) {
-    printf("Unable to find function: %s\n", fB.f_name);
+    fprintf(stderr, "Unable to find function: %s\n", fB.f_name);
     exit(1);
   } else {
-    printf("function B = %s\n", fB.f_name);
+    fprintf(stderr, "function B = %s\n", fB.f_name);
+  }
+
+  if (single_point) {
+    double y1 = fA.f_ptr(x_point);
+    double y2 = fB.f_ptr(x_point);
+    double err = y1 - y2;
+    printf("%24s %31s %31s\n", "x", "fA(x)", "fB(x)");
+    printf("%+-20.17e\t%+-20.17e\t%+-20.17e\n", x_point, y1, y2);
+    exit(0);
   }
 
   // allocate memory
@@ -179,7 +194,7 @@ int main(int argc, char **argv) {
   double *err = malloc(points * sizeof(double));
   struct benchCycle *cycle_log = malloc(cycles * sizeof(struct benchCycle));
   if (x == NULL || y1 == NULL || y2 == NULL || err == NULL || cycle_log == NULL) {
-    printf("Unable to allocate memory.");
+    fprintf(stderr, "Unable to allocate memory.");
     exit(1);
   }
 
@@ -189,8 +204,8 @@ int main(int argc, char **argv) {
   T = gsl_rng_default;
   r = gsl_rng_alloc(T);
 
-  printf("generator type: %s\n", gsl_rng_name(r));
-  printf("seed = %lu\n", gsl_rng_default_seed);
+  fprintf(stderr, "generator type: %s\n", gsl_rng_name(r));
+  fprintf(stderr, "seed = %lu\n", gsl_rng_default_seed);
 
   clock_t begin, end;
   double time_spent;
