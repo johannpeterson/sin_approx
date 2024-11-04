@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <gsl/gsl_math.h>
@@ -22,7 +23,22 @@ char* help_string =
   "                        Defaults min=-Pi max=Pi\n"
   "    -h                  Display this help.\n";
 
-gsl_rng *r; /* global random number generator */
+typedef double (*f_ptr)(double);
+
+struct function_item {
+  const char*   f_name;
+  f_ptr         f_ptr;
+};
+
+struct function_item function_lookup[] = {
+  {"sin1",      &sin_1},
+  {"sin2",      &sin_2},
+  {"sin3",      &sin_3},
+  {"gslsin",    &gsl_sf_sin},
+  {"reduce",    &reduce},
+  //{"gslReduce", &gslReduce},
+  {"",          NULL}
+};
 
 struct benchCycle {
   long          points;
@@ -35,7 +51,37 @@ struct benchCycle {
   double        ops_per_sec_B;
 };
 
+f_ptr get_function(const char *f_name) {
+  f_ptr f = NULL;
+  for(int i = 0; f == NULL; i++) {
+    if( 0 == strcmp(f_name, function_lookup[i].f_name) ) {
+      f = function_lookup[i].f_ptr;
+    } else if ( function_lookup[i].f_ptr == NULL) {
+      break;
+    }
+  }
+  return f;
+}
+
 void print_stats(struct benchCycle *stats, int cycles) {
+  printf("%5s %12s %12s %12s %12s %12s %12s %12s %12s\n",
+         "cycle", "N points", "min x", "max x", "mean(err)",
+         "min(err)", "max(err)", "op/sec A", "op/sec B");
+  for (int c = 0; c < cycles; c++) {
+    printf("%5d %12ld %12e %12e %12e %12e %12e %12e %12e\n",
+           c,
+           stats[c].points,
+           stats[c].minx,
+           stats[c].maxx,
+           stats[c].mean_err,
+           stats[c].min_err,
+           stats[c].max_err,
+           stats[c].ops_per_sec_A,
+           stats[c].ops_per_sec_B);
+  }
+  }
+
+void print_stats_old(struct benchCycle *stats, int cycles) {
   printf("cycle\t    N points\t       min x\t       max x\t    mean(err)\t    min(err)\t    max(err)\t    op/sec A\t    op/sec B\n");
   for (int c = 0; c < cycles; c++) {
     printf("%5d\t%12ld\t%12e\t%12e\t%12e\t%12e\t%12e\t%12e\t%12e\n",
@@ -51,13 +97,20 @@ void print_stats(struct benchCycle *stats, int cycles) {
   }
 }
 
+gsl_rng *r; /* global random number generator */
+
 int main(int argc, char **argv) {
   int c;
   int points = 10000;
   int cycles = 3;
   double min_x = -M_PI;
   double max_x = M_PI;
-  while ((c = getopt(argc, argv, "c:p:m:M:h")) != -1) {
+  struct function_item fA = {
+    "sin3", NULL};
+  struct function_item fB = {
+    "gslsin", NULL};
+
+  while ((c = getopt(argc, argv, "c:p:m:M:hA:B:")) != -1) {
     switch (c) {
     case 'p':
       points = atoi(optarg);
@@ -74,6 +127,14 @@ int main(int argc, char **argv) {
     case 'h':
       printf("%s\n", help_string);
       exit(0);
+    case 'A':
+      fA.f_name = optarg;
+
+      exit(0);
+    case 'B':
+      fB.f_name = optarg;
+
+      exit(0);
     }
   }
 
@@ -85,6 +146,20 @@ int main(int argc, char **argv) {
   if (cycles < 1) {
     printf("Please specify a positive number of test cycles.");
     exit(1);
+  }
+  fA.f_ptr = get_function(fA.f_name);
+  fB.f_ptr = get_function(fB.f_name);
+  if (fA.f_ptr == NULL) {
+    printf("Unable to find function: %s\n", fA.f_name);
+    exit(1);
+  } else {
+    printf("function A = %s\n", fA.f_name);
+  }
+  if (fB.f_ptr == NULL) {
+    printf("Unable to find function: %s\n", fB.f_name);
+    exit(1);
+  } else {
+    printf("function B = %s\n", fB.f_name);
   }
 
   // allocate memory

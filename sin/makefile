@@ -22,15 +22,22 @@ libreduce.dylib: reduce.o
 reduce.o: reduce.s
 	as -arch arm64 -o reduce.o reduce.s
 
+libangle_reduction.dylib: angle_reduction.o
+	ld -o libangle_reduction.dylib angle_reduction.o \
+	-dylib -lSystem -syslibroot `xcrun -sdk macosx --show-sdk-path`
+angle_reduction.o: angle_reduction.c
+	gcc -c -o angle_reduction.o angle_reduction.c
+
 libmysin.dylib: sin1.o sin2.o sin3.o reduce.o
-	ld -o libmysin.dylib sin1.o sin2.o sin3.o reduce.o -dylib -lSystem -syslibroot  `xcrun -sdk macosx --show-sdk-path`
+	ld -o libmysin.dylib sin1.o sin2.o sin3.o reduce.o angle_reduction.o \
+	-dylib -lSystem -syslibroot  `xcrun -sdk macosx --show-sdk-path`
 
 test: test.o libmysin.dylib
 	clang -o test test.o -L. -lmysin -lsin1 -lsin2 -lsin3 -L/usr/local/lib -lgsl
 test.o: test.c
 	gcc -c test.c -o test.o -I/usr/local/include
 
-benchmark: benchmark.o libmysin.dylib
+benchmark: benchmark.o libmysin.dylib mysin.h
 	clang -o benchmark benchmark.o -L. -lmysin -L/usr/local/lib -lgsl
 test.o: benchmark.c
 	gcc -c benchmark.c -o benchmark.o -I/usr/local/include
