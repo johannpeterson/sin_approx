@@ -38,7 +38,7 @@ test.o: test.c
 	gcc -c test.c -o test.o -I/usr/local/include
 
 benchmark: benchmark.o libmysin.dylib mysin.h
-	clang -o benchmark benchmark.o -L. -lmysin -L/usr/local/lib -lgsl
+	clang -g -o benchmark benchmark.o -L. -lmysin -L/usr/local/lib -lgsl
 test.o: benchmark.c
 	gcc -c benchmark.c -o benchmark.o -I/usr/local/include
 

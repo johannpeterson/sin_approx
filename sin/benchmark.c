@@ -21,6 +21,8 @@ char* help_string =
   "                        Default 3\n"
   "    -m min -M max       Specify a range from which to draw x values for testing Sin(x).\n"
   "                        Defaults min=-Pi max=Pi\n"
+  "    -A fname\n"
+  "    -B fname            Choose functions to test by name."
   "    -h                  Display this help.\n";
 
 typedef double (*f_ptr)(double);
@@ -53,11 +55,10 @@ struct benchCycle {
 
 f_ptr get_function(const char *f_name) {
   f_ptr f = NULL;
-  for(int i = 0; f == NULL; i++) {
+  int i = 0;
+  for(int i = 0; function_lookup[i].f_ptr != NULL; i++) {
     if( 0 == strcmp(f_name, function_lookup[i].f_name) ) {
-      f = function_lookup[i].f_ptr;
-    } else if ( function_lookup[i].f_ptr == NULL) {
-      break;
+      if( (f = function_lookup[i].f_ptr) == NULL ) break;
     }
   }
   return f;
@@ -100,7 +101,6 @@ void print_stats_old(struct benchCycle *stats, int cycles) {
 gsl_rng *r; /* global random number generator */
 
 int main(int argc, char **argv) {
-  int c;
   int points = 10000;
   int cycles = 3;
   double min_x = -M_PI;
@@ -110,6 +110,7 @@ int main(int argc, char **argv) {
   struct function_item fB = {
     "gslsin", NULL};
 
+  int c;
   while ((c = getopt(argc, argv, "c:p:m:M:hA:B:")) != -1) {
     switch (c) {
     case 'p':
@@ -129,12 +130,10 @@ int main(int argc, char **argv) {
       exit(0);
     case 'A':
       fA.f_name = optarg;
-
-      exit(0);
+      break;
     case 'B':
       fB.f_name = optarg;
-
-      exit(0);
+      break;
     }
   }
 
@@ -196,7 +195,7 @@ int main(int argc, char **argv) {
     // timing
     begin = clock();
     for (int i = 0; i < points; i++) {
-      y1[i] = gsl_sf_sin(x[i]);
+      y1[i] = fA.f_ptr(x[i]);
     }
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -204,7 +203,7 @@ int main(int argc, char **argv) {
 
     begin = clock();
     for (int i = 0; i < points; i++) {
-      y2[i] = sin_3(x[i]);
+      y2[i] = fB.f_ptr(x[i]);
     }
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -224,5 +223,7 @@ int main(int argc, char **argv) {
   free(x);
   free(y1);
   free(y2);
+  free(err);
+  free(cycle_log);
   return 0;
 }
