@@ -17,8 +17,11 @@ double gslReduceBase(double x) {
   return t;
 }
 
+// The function gslReducebase maps each octant
+// onto [-1, +1].  So scale it to [0, Pi/4].
+
 double gslReduce(double x) {
   double y = gslReduceBase(x);
-  y = (y + 1)*M_PI_4;
+  y = (y + 1)*M_PI_4/2;
   return y;
 }

@@ -14,16 +14,19 @@
 
 char* help_string =
   "benchmark - Timing program for sin functions.\n"
-  "usage: benchmark [h] [-p npoints] [-c ncycles] [-m min -M max]\n\n"
+  "usage: benchmark [-h]\n"
+  "       benchmark [-p npoints] [-c ncycles] [-m min -M max]\n"
+  "       benchmark -x value\n\n"
   "    -p npoints          The number of x values to use for each cycle of testing\n"
   "                        Default 10000\n"
   "    -c ncycles          The number of test cycles to perform.\n"
   "                        Default 3\n"
   "    -m min -M max       Specify a range from which to draw x values for testing Sin(x).\n"
   "                        Defaults min=-Pi max=Pi\n"
-  "    -A fname\n"
-  "    -B fname            Choose functions to test by name.\n"
+  "    -A fname            Choose functions to test by name.\n"
+  "    -B fname            \n"
   "    -L                  List available functions.\n"
+  "    -x value            Calculate both functions only at x=value\n"
   "    -h                  Display this help.\n";
 
 typedef double (*f_ptr)(double);
@@ -182,8 +185,12 @@ int main(int argc, char **argv) {
     double y1 = fA.f_ptr(x_point);
     double y2 = fB.f_ptr(x_point);
     double err = y1 - y2;
-    printf("%24s %31s %31s\n", "x", "fA(x)", "fB(x)");
-    printf("%+-20.17e\t%+-20.17e\t%+-20.17e\n", x_point, y1, y2);
+    printf("%12s\t%+-20.17e\n", "x", x_point);
+    printf("%12s\t%+-20.17e\n", fA.f_name, y1);
+    printf("%12s\t%+-20.17e\n", fB.f_name, y2);
+    printf("%12s\t%+-20.17e\n", "err", err);
+    // printf("%24s %31s %31s\n", "x", "fA(x)", "fB(x)");
+    // printf("%+-20.17e\t%+-20.17e\t%+-20.17e\n", x_point, y1, y2);
     exit(0);
   }
 

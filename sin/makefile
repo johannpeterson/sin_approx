@@ -39,7 +39,7 @@ test.o: test.c
 
 benchmark: benchmark.o libmysin.dylib mysin.h
 	clang -g -o benchmark benchmark.o -L. -lmysin -L/usr/local/lib -lgsl
-test.o: benchmark.c
+benchmark.o: benchmark.c
 	gcc -c benchmark.c -o benchmark.o -I/usr/local/include
 
 .PHONY: clean all
