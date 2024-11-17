@@ -6,7 +6,7 @@ This started while I was learning ARM assembly.  I decided that it would be a go
 2. Approximation of the Sin function by Chebyshev polynomials
 
 # Math Libraries
-- [https://sourceware.org/glibc/](glibc)
+- [glibc](https://sourceware.org/glibc/)
 - [https://github.com/taschini/crlibm](crlibm)
 - [https://www.gnu.org/software/gsl/](gsl)
 - [https://gitlab.inria.fr/core-math/core-math](core-math)
