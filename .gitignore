@@ -1,5 +1,5 @@
 .DS_Store
-gsl-2.8/
+lib/*
 *.o
 *.dylib
 benchmark

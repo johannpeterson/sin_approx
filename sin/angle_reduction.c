@@ -10,7 +10,7 @@ double gslReduceBase(double x) {
 
   const double abs_x = fabs(x);
 
-  double y = floor(abs_x / (0.25 * M_PI));
+  double y = floor(4 * abs_x / M_PI);
   double z = ((abs_x - y * P1) - y * P2) - y * P3;
   double t = 8.0 * fabs(z) / M_PI - 1.0;
 

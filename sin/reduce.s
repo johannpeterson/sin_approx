@@ -1,4 +1,4 @@
-// sin2.s
+// reduce.s
 // Approximate Sin(x) by Chebyshev approximation
 
 .global         _reduce

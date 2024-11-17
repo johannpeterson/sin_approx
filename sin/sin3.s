@@ -1,4 +1,4 @@
-// sin2.s
+// sin3.s
 // Approximate Sin(x) by Chebyshev approximation
 
 .global         _sin_3
