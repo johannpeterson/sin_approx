@@ -7,7 +7,7 @@ This started while I was learning ARM assembly.  I decided that it would be a go
 
 # Math Libraries
 - [glibc](https://sourceware.org/glibc/)
-- [https://github.com/taschini/crlibm](crlibm)
-- [https://www.gnu.org/software/gsl/](gsl)
-- [https://gitlab.inria.fr/core-math/core-math](core-math)
-- [https://openlibm.org/](openlibm)
+- [crlibm](https://github.com/taschini/crlibm)
+- [gsl](https://www.gnu.org/software/gsl/)
+- [core-math](https://gitlab.inria.fr/core-math/core-math)
+- [openlibm](https://openlibm.org/)
