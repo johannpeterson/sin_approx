@@ -11,3 +11,9 @@ This started while I was learning ARM assembly.  I decided that it would be a go
 - [gsl](https://www.gnu.org/software/gsl/)
 - [core-math](https://gitlab.inria.fr/core-math/core-math)
 - [openlibm](https://openlibm.org/)
+
+Let's insert a bibliography reference here [@waiteSoftwareManualElementary1980].
+And here [@goldbergWhatEveryComputer1991]
+---
+bibliography: refs/references.bib
+---

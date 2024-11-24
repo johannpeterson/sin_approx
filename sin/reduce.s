@@ -31,6 +31,7 @@ inrange:
         cmp     w1, #0
         beq     end
         fneg    d0, d0
+        y
 end:
         ret
 
